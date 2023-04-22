@@ -40,6 +40,35 @@ class ChargePoint(cp):
     async def on_get_configuration(self, configuration_key):
         response_key = [
             {"key": "AllowOfflineTxForUnknownId", "readonly": False, "value": "false"},
+            {"key": "HeartbeatInterval", "readonly": False, "value": "900"}
+        ]
+        return call.GetConfigurationPayload(configuration_key=response_key)
+
+
+
+
+
+
+async def main():
+    async with websockets.connect(
+        "ws://dev.wevolt-ev.com/cpms/websockets/e1x9QXk4", subprotocols=["ocpp1.6"]
+    ) as ws:
+
+        cp = ChargePoint("e1x9QXk4", ws)
+        cp.on_get_configuration = ChargePoint.on_get_configuration
+        await asyncio.gather(cp.start(), cp.send_boot_notification())
+
+
+
+if __name__ == "__main__":
+    # asyncio.run() is used when running this example with Python >= 3.7v
+    asyncio.run(main())
+
+
+
+"""
+        response_key = [
+            {"key": "AllowOfflineTxForUnknownId", "readonly": False, "value": "false"},
             {"key": "AuthorizationCacheEnabled", "readonly": False, "value": "true"},
             {"key": "AuthorizeRemoteTxRequests", "readonly": False, "value": "false"},
             {"key": "ClockAlignedDataInterval", "readonly": False, "value": "0"},
@@ -68,24 +97,4 @@ class ChargePoint(cp):
             {"key": "ConnectorSwitch3to1PhaseSupported", "readonly": True, "value": "false"},
             {"key": "MaxChargingProfilesInstalled", "readonly": True, "value": "20"}
         ]
-        return call.GetConfigurationPayload(configuration_key=response_key)
-
-
-
-
-
-
-async def main():
-    async with websockets.connect(
-        "ws://dev.wevolt-ev.com/cpms/websockets/e1x9QXk4", subprotocols=["ocpp1.6"]
-    ) as ws:
-
-        cp = ChargePoint("e1x9QXk4", ws)
-        cp.on_get_configuration = ChargePoint.on_get_configuration
-        await asyncio.gather(cp.start(), cp.send_boot_notification())
-
-
-
-if __name__ == "__main__":
-    # asyncio.run() is used when running this example with Python >= 3.7v
-    asyncio.run(main())
+"""
